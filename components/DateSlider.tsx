@@ -44,7 +44,8 @@ type Props = {
 };
 
 export default function DateSlider({ selectedDate, onSelectDate }: Props) {
-  const today = new Date().toISOString().split("T")[0];
+  // const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   const dates = getDates(today);
   const flatListRef = useRef<FlatList>(null);
   const selectedIndex = dates.indexOf(selectedDate);
