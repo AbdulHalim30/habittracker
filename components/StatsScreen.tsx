@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Habit, HabitLog } from "../types";
 import { parseDateKey, toDateKey, todayKey } from "../utils/date";
+import Heatmap from "./Heatmap";
 
 type Props = {
   habits: Habit[];
@@ -62,10 +63,24 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
   const [period, setPeriod] = useState<"7" | "30">("7");
   const dates = period === "7" ? getLast7Days() : getLast30Days();
 
+  // Heatmap memeriksa ratusan tanggal per habit, jadi pakai Set, bukan logs.some
+  const completedSet = useMemo(
+    () =>
+      new Set(
+        logs.filter((l) => l.completed).map((l) => `${l.habitId}|${l.date}`)
+      ),
+    [logs]
+  );
+
   function isCompleted(habitId: string, date: string) {
-    return logs.some(
-      (l) => l.habitId === habitId && l.date === date && l.completed
-    );
+    return completedSet.has(`${habitId}|${date}`);
+  }
+
+  // Proporsi habit selesai di satu tanggal, null kalau tidak ada habit aktif
+  function getDayValue(date: string): number | null {
+    const total = getTotalActiveForDate(date);
+    if (total === 0) return null;
+    return getCompletedCountForDate(date) / total;
   }
 
   // Hari sebelum habit dibuat tidak dihitung aktif
@@ -169,6 +184,12 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
           </TouchableOpacity>
         </View>
 
+        {/* Heatmap Aktivitas */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Aktivitas</Text>
+          <Heatmap getValue={getDayValue} color="#6C63FF" showLegend />
+        </View>
+
         {/* Bar Chart Harian */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Completion per Hari</Text>
@@ -262,24 +283,17 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
                   <Text style={styles.rateText}>{rate}%</Text>
                 </View>
 
-                {/* Dot grid per hari */}
-                <View style={styles.dotGrid}>
-                  {dates.slice(-14).map((date) => {
-                    const active = isActiveDay(habit, date);
-                    const done = isCompleted(habit.id, date);
-                    return (
-                      <View
-                        key={date}
-                        style={[
-                          styles.dot,
-                          !active && styles.dotInactive,
-                          active && !done && styles.dotMissed,
-                          active && done && { backgroundColor: habit.color },
-                        ]}
-                      />
-                    );
-                  })}
-                </View>
+                {/* Heatmap per habit */}
+                <Heatmap
+                  getValue={(date) =>
+                    isActiveDay(habit, date)
+                      ? isCompleted(habit.id, date)
+                        ? 1
+                        : 0
+                      : null
+                  }
+                  color={habit.color}
+                />
               </View>
             );
           })}
@@ -395,18 +409,5 @@ const styles = StyleSheet.create({
   },
   rateBarFill: { height: "100%", borderRadius: 3 },
   rateText: { fontSize: 12, fontWeight: "700", color: "#222", width: 36 },
-  dotGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 4,
-  },
-  dot: {
-    width: 16,
-    height: 16,
-    borderRadius: 4,
-    backgroundColor: "#6C63FF",
-  },
-  dotInactive: { backgroundColor: "transparent" },
-  dotMissed: { backgroundColor: "#f0f0f0" },
   emptyText: { color: "#aaa", fontSize: 13, textAlign: "center" },
 });
