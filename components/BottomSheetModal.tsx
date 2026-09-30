@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { useRef, useEffect } from "react";
+import { Colors, useThemedStyles } from "../constants/theme";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -24,6 +25,7 @@ export default function BottomSheetModal({
   onClose,
   children,
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
   useEffect(() => {
@@ -103,25 +105,26 @@ export default function BottomSheetModal({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "#00000055",
-  },
-  sheet: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: SCREEN_HEIGHT * 0.9,
-  },
-  handleArea: {
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#ddd",
-  },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: c.backdrop,
+    },
+    sheet: {
+      backgroundColor: c.surface,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: SCREEN_HEIGHT * 0.9,
+    },
+    handleArea: {
+      alignItems: "center",
+      paddingVertical: 12,
+    },
+    handle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: c.control,
+    },
+  });

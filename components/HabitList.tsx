@@ -2,6 +2,7 @@ import { View, Text, SectionList, StyleSheet } from "react-native";
 import HabitCard from "./HabitCard";
 import { Habit, TimeOfDay } from "../types";
 import { getSectionsForTab } from "../constants/data";
+import { Colors, useThemedStyles } from "../constants/theme";
 
 type Props = {
   habits: Habit[];
@@ -21,6 +22,7 @@ export default function HabitList({
   onDelete,
   onEdit,
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const sectionData = getSectionsForTab(activeTab)
     .map((section) => ({
       ...section,
@@ -61,31 +63,32 @@ export default function HabitList({
   );
 }
 
-const styles = StyleSheet.create({
-  empty: { alignItems: "center", marginTop: 80 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { fontSize: 16, fontWeight: "600", color: "#aaa" },
-  emptySubtext: { fontSize: 13, color: "#ccc", marginTop: 4 },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-    gap: 6,
-  },
-  sectionIcon: { fontSize: 14 },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#888",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#f0f0f0",
-    marginLeft: 8,
-  },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    empty: { alignItems: "center", marginTop: 80 },
+    emptyIcon: { fontSize: 48, marginBottom: 12 },
+    emptyText: { fontSize: 16, fontWeight: "600", color: c.textMuted },
+    emptySubtext: { fontSize: 13, color: c.textFaint, marginTop: 4 },
+    sectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 8,
+      gap: 6,
+    },
+    sectionIcon: { fontSize: 14 },
+    sectionTitle: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: c.textSecondary,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+    sectionLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: c.border,
+      marginLeft: 8,
+    },
+  });

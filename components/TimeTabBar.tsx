@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { TimeOfDay } from "../types";
+import { Colors, useThemedStyles } from "../constants/theme";
 
 type Props = {
   selected: TimeOfDay;
@@ -14,6 +15,7 @@ const TABS = [
 ];
 
 export default function TimeTabBar({ selected, onSelect }: Props) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.container}>
       {TABS.map((tab) => (
@@ -37,32 +39,33 @@ export default function TimeTabBar({ selected, onSelect }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-    gap: 6,
-  },
-  tab: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "#f5f5f5",
-  },
-  tabSelected: {
-    backgroundColor: "#6C63FF",
-  },
-  tabIcon: { fontSize: 16 },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#aaa",
-    marginTop: 2,
-  },
-  tabLabelSelected: { color: "#fff" },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      backgroundColor: c.surface,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+      gap: 6,
+    },
+    tab: {
+      flex: 1,
+      alignItems: "center",
+      paddingVertical: 8,
+      borderRadius: 12,
+      backgroundColor: c.surfaceAlt,
+    },
+    tabSelected: {
+      backgroundColor: c.primary,
+    },
+    tabIcon: { fontSize: 16 },
+    tabLabel: {
+      fontSize: 11,
+      fontWeight: "600",
+      color: c.textMuted,
+      marginTop: 2,
+    },
+    tabLabelSelected: { color: c.onPrimary },
+  });

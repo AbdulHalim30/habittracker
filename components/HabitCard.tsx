@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Habit } from "../types";
+import { Colors, useTheme, useThemedStyles } from "../constants/theme";
 
 type Props = {
   habit: Habit;
@@ -23,6 +24,8 @@ export default function HabitCard({
   onDelete,
   onEdit,
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
   const checkScale = useRef(new Animated.Value(completed ? 1 : 0)).current;
   const bgColor = useRef(new Animated.Value(completed ? 1 : 0)).current;
@@ -63,7 +66,7 @@ export default function HabitCard({
 
   const backgroundColor = bgColor.interpolate({
     inputRange: [0, 1],
-    outputRange: ["#ffffff", "#f0fff4"],
+    outputRange: [colors.surface, colors.completedCard],
   });
 
   return (
@@ -116,78 +119,79 @@ export default function HabitCard({
   );
 }
 
-const styles = StyleSheet.create({
-  cardWrapper: {
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderRadius: 16,
-    padding: 16,
-  },
-  left: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  icon: { fontSize: 22 },
-  name: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#222",
-  },
-  nameCompleted: {
-    textDecorationLine: "line-through",
-    color: "#aaa",
-  },
-  status: {
-    fontSize: 12,
-    color: "#aaa",
-    marginTop: 2,
-  },
-  right: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  checkCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  emptyCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: "#ddd",
-  },
-  deleteBtn: { padding: 4 },
-  deleteText: { fontSize: 14, color: "#ccc" },
-  editBtn: { padding: 4 },
-  editText: { fontSize: 14 },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    cardWrapper: {
+      borderRadius: 16,
+      marginHorizontal: 16,
+      marginVertical: 6,
+      shadowColor: "#000",
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+    },
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderRadius: 16,
+      padding: 16,
+    },
+    left: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      flex: 1,
+    },
+    iconBox: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    icon: { fontSize: 22 },
+    name: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: c.text,
+    },
+    nameCompleted: {
+      textDecorationLine: "line-through",
+      color: c.textMuted,
+    },
+    status: {
+      fontSize: 12,
+      color: c.textMuted,
+      marginTop: 2,
+    },
+    right: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    checkCircle: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    checkText: {
+      color: c.onPrimary,
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    emptyCircle: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: c.control,
+    },
+    deleteBtn: { padding: 4 },
+    deleteText: { fontSize: 14, color: c.textFaint },
+    editBtn: { padding: 4 },
+    editText: { fontSize: 14 },
+  });

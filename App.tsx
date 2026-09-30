@@ -23,10 +23,13 @@ import BottomSheetModal from "./components/BottomSheetModal";
 
 import { Habit, TimeOfDay } from "./types";
 import { todayKey } from "./utils/date";
+import { Colors, useTheme, useThemedStyles } from "./constants/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function App() {
+  const styles = useThemedStyles(makeStyles);
+  const { isDark, colors } = useTheme();
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [activeTab, setActiveTab] = useState<TimeOfDay>("all");
   const [showStats, setShowStats] = useState(false);
@@ -121,7 +124,10 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
 
       {showConfetti && (
         <ConfettiCannon
@@ -247,57 +253,62 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#222" },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
-  statsBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  createBtn: {
-    backgroundColor: "#6C63FF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  createBtnText: { color: "#fff", fontWeight: "600", fontSize: 14 },
-  permissionBanner: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#FFF4E5",
-    borderBottomWidth: 1,
-    borderBottomColor: "#FDE3BF",
-  },
-  permissionText: { fontSize: 13, color: "#B45309", fontWeight: "500" },
-  progressContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 3,
-    overflow: "hidden",
-    marginBottom: 6,
-  },
-  progressFill: { height: "100%", backgroundColor: "#6C63FF", borderRadius: 3 },
-  progressText: { fontSize: 12, color: "#888", fontWeight: "500" },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: c.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    headerTitle: { fontSize: 20, fontWeight: "700", color: c.text },
+    headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+    statsBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: c.surfaceAlt,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    createBtn: {
+      backgroundColor: c.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+    },
+    createBtnText: { color: c.onPrimary, fontWeight: "600", fontSize: 14 },
+    permissionBanner: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      backgroundColor: c.warningBg,
+      borderBottomWidth: 1,
+      borderBottomColor: c.warningBorder,
+    },
+    permissionText: { fontSize: 13, color: c.warningText, fontWeight: "500" },
+    progressContainer: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      backgroundColor: c.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 3,
+      overflow: "hidden",
+      marginBottom: 6,
+    },
+    progressFill: {
+      height: "100%",
+      backgroundColor: c.primary,
+      borderRadius: 3,
+    },
+    progressText: { fontSize: 12, color: c.textSecondary, fontWeight: "500" },
+  });

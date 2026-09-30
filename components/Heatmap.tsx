@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, StyleSheet, LayoutChangeEvent } from "react-native";
 import { toDateKey, todayKey } from "../utils/date";
+import { Colors, useTheme, useThemedStyles } from "../constants/theme";
 
 type Props = {
   // null = hari tidak aktif, 0..1 = proporsi selesai
@@ -28,8 +29,6 @@ const MONTH_NAMES = [
 ];
 // Label hanya di baris ganjil supaya tidak sesak, seperti GitHub
 const ROW_LABELS = ["", "Sen", "", "Rab", "", "Jum", ""];
-const MISSED_COLOR = "#e6e6ec";
-const INACTIVE_COLOR = "#f7f7f9";
 const ALPHA = ["", "55", "8C", "C4", ""]; // level 1..4, level 4 = warna penuh
 
 function level(value: number): number {
@@ -38,10 +37,10 @@ function level(value: number): number {
   return Math.max(1, Math.ceil(value * 3));
 }
 
-function cellColor(value: number | null, color: string): string {
-  if (value === null) return INACTIVE_COLOR;
+function cellColor(value: number | null, color: string, theme: Colors): string {
+  if (value === null) return theme.heatInactive;
   const l = level(value);
-  return l === 0 ? MISSED_COLOR : color + ALPHA[l];
+  return l === 0 ? theme.heatMissed : color + ALPHA[l];
 }
 
 // Kolom = minggu (Min..Sab), kolom terakhir = minggu ini
@@ -65,6 +64,8 @@ function buildWeeks(count: number): Date[][] {
 }
 
 export default function Heatmap({ getValue, color, showLegend }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const [width, setWidth] = useState(0);
 
   function onLayout(e: LayoutChangeEvent) {
@@ -126,7 +127,13 @@ export default function Heatmap({ getValue, color, showLegend }: Props) {
                       key={key}
                       style={[
                         styles.cell,
-                        { backgroundColor: cellColor(getValue(key), color) },
+                        {
+                          backgroundColor: cellColor(
+                            getValue(key),
+                            color,
+                            colors
+                          ),
+                        },
                         key === today && styles.today,
                       ]}
                     />
@@ -142,7 +149,10 @@ export default function Heatmap({ getValue, color, showLegend }: Props) {
               {[0, 0.2, 0.5, 0.8, 1].map((v) => (
                 <View
                   key={v}
-                  style={[styles.cell, { backgroundColor: cellColor(v, color) }]}
+                  style={[
+                    styles.cell,
+                    { backgroundColor: cellColor(v, color, colors) },
+                  ]}
                 />
               ))}
               <Text style={styles.legendText}>Lebih</Text>
@@ -154,26 +164,27 @@ export default function Heatmap({ getValue, color, showLegend }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: GAP },
-  column: { gap: GAP },
-  cell: { width: CELL, height: CELL, borderRadius: 3 },
-  today: { borderWidth: 1.5, borderColor: "#222" },
-  monthCell: { width: CELL, height: 14, overflow: "visible" },
-  monthText: { fontSize: 9, color: "#aaa", width: 30 },
-  dayText: {
-    fontSize: 9,
-    color: "#aaa",
-    height: CELL,
-    lineHeight: CELL,
-    marginBottom: GAP,
-  },
-  legend: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: GAP,
-    marginTop: 10,
-  },
-  legendText: { fontSize: 10, color: "#aaa", marginHorizontal: 4 },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", gap: GAP },
+    column: { gap: GAP },
+    cell: { width: CELL, height: CELL, borderRadius: 3 },
+    today: { borderWidth: 1.5, borderColor: c.text },
+    monthCell: { width: CELL, height: 14, overflow: "visible" },
+    monthText: { fontSize: 9, color: c.textMuted, width: 30 },
+    dayText: {
+      fontSize: 9,
+      color: c.textMuted,
+      height: CELL,
+      lineHeight: CELL,
+      marginBottom: GAP,
+    },
+    legend: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: GAP,
+      marginTop: 10,
+    },
+    legendText: { fontSize: 10, color: c.textMuted, marginHorizontal: 4 },
+  });

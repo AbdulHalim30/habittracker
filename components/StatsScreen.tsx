@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Habit, HabitLog } from "../types";
 import { parseDateKey, toDateKey, todayKey } from "../utils/date";
 import Heatmap from "./Heatmap";
+import { Colors, useTheme, useThemedStyles } from "../constants/theme";
 
 type Props = {
   habits: Habit[];
@@ -60,6 +61,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function StatsScreen({ habits, logs, onClose }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { isDark, colors } = useTheme();
   const [period, setPeriod] = useState<"7" | "30">("7");
   const dates = period === "7" ? getLast7Days() : getLast30Days();
 
@@ -139,7 +142,10 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
 
       {/* Header */}
       <View style={styles.header}>
@@ -187,7 +193,7 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
         {/* Heatmap Aktivitas */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Aktivitas</Text>
-          <Heatmap getValue={getDayValue} color="#6C63FF" showLegend />
+          <Heatmap getValue={getDayValue} color={colors.primary} showLegend />
         </View>
 
         {/* Bar Chart Harian */}
@@ -215,8 +221,8 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
                             height: barHeight,
                             backgroundColor:
                               completed === total && total > 0
-                                ? "#6C63FF"
-                                : "#B0ABFF",
+                                ? colors.primary
+                                : colors.primaryMuted,
                           },
                         ]}
                       />
@@ -303,111 +309,112 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  backBtn: { width: 80 },
-  backText: { fontSize: 14, color: "#6C63FF", fontWeight: "600" },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#222" },
-  periodToggle: {
-    flexDirection: "row",
-    margin: 16,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 4,
-  },
-  periodBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  periodBtnActive: { backgroundColor: "#6C63FF" },
-  periodText: { fontSize: 14, fontWeight: "600", color: "#aaa" },
-  periodTextActive: { color: "#fff" },
-  section: {
-    marginHorizontal: 16,
-    marginBottom: 20,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#222",
-    marginBottom: 16,
-  },
-  chartContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 6,
-    paddingBottom: 4,
-  },
-  barWrapper: { alignItems: "center", width: 36 },
-  barCount: { fontSize: 9, color: "#aaa", marginBottom: 4 },
-  barTrack: {
-    width: 24,
-    height: 120,
-    justifyContent: "flex-end",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-  barFill: { width: "100%", borderRadius: 6 },
-  barLabel: { fontSize: 10, color: "#aaa", marginTop: 6 },
-  barLabelToday: { color: "#6C63FF", fontWeight: "700" },
-  habitStatCard: {
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f5f5f5",
-  },
-  habitStatHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 10,
-  },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  habitStatName: { fontSize: 14, fontWeight: "600", color: "#222" },
-  habitStatDays: { fontSize: 11, color: "#aaa", marginTop: 2 },
-  streakBadge: {
-    backgroundColor: "#FFF3E0",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  streakText: { fontSize: 12, fontWeight: "600", color: "#F57C00" },
-  rateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 10,
-  },
-  rateBarTrack: {
-    flex: 1,
-    height: 6,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  rateBarFill: { height: "100%", borderRadius: 3 },
-  rateText: { fontSize: 12, fontWeight: "700", color: "#222", width: 36 },
-  emptyText: { color: "#aaa", fontSize: 13, textAlign: "center" },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      backgroundColor: c.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    backBtn: { width: 80 },
+    backText: { fontSize: 14, color: c.primary, fontWeight: "600" },
+    headerTitle: { fontSize: 18, fontWeight: "700", color: c.text },
+    periodToggle: {
+      flexDirection: "row",
+      margin: 16,
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      padding: 4,
+    },
+    periodBtn: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: "center",
+      borderRadius: 10,
+    },
+    periodBtnActive: { backgroundColor: c.primary },
+    periodText: { fontSize: 14, fontWeight: "600", color: c.textMuted },
+    periodTextActive: { color: c.onPrimary },
+    section: {
+      marginHorizontal: 16,
+      marginBottom: 20,
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: c.text,
+      marginBottom: 16,
+    },
+    chartContainer: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: 6,
+      paddingBottom: 4,
+    },
+    barWrapper: { alignItems: "center", width: 36 },
+    barCount: { fontSize: 9, color: c.textMuted, marginBottom: 4 },
+    barTrack: {
+      width: 24,
+      height: 120,
+      justifyContent: "flex-end",
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 6,
+      overflow: "hidden",
+    },
+    barFill: { width: "100%", borderRadius: 6 },
+    barLabel: { fontSize: 10, color: c.textMuted, marginTop: 6 },
+    barLabelToday: { color: c.primary, fontWeight: "700" },
+    habitStatCard: {
+      marginBottom: 16,
+      paddingBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    habitStatHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      marginBottom: 10,
+    },
+    iconBox: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    habitStatName: { fontSize: 14, fontWeight: "600", color: c.text },
+    habitStatDays: { fontSize: 11, color: c.textMuted, marginTop: 2 },
+    streakBadge: {
+      backgroundColor: c.streakBg,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 10,
+    },
+    streakText: { fontSize: 12, fontWeight: "600", color: c.streakText },
+    rateRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10,
+    },
+    rateBarTrack: {
+      flex: 1,
+      height: 6,
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 3,
+      overflow: "hidden",
+    },
+    rateBarFill: { height: "100%", borderRadius: 3 },
+    rateText: { fontSize: 12, fontWeight: "700", color: c.text, width: 36 },
+    emptyText: { color: c.textMuted, fontSize: 13, textAlign: "center" },
+  });

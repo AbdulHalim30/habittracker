@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { parseDateKey, toDateKey, todayKey } from "../utils/date";
+import { Colors, useThemedStyles } from "../constants/theme";
 
 const ITEM_WIDTH = 56;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -45,13 +46,16 @@ type Props = {
 };
 
 export default function DateSlider({ selectedDate, onSelectDate }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const today = todayKey();
   const dates = getDates(today);
   const flatListRef = useRef<FlatList>(null);
   const selectedIndex = dates.indexOf(selectedDate);
 
   const selectedDateObj = parseDateKey(selectedDate);
-  const monthYear = `${MONTH_NAMES[selectedDateObj.getMonth()]} ${selectedDateObj.getFullYear()}`;
+  const monthYear = `${
+    MONTH_NAMES[selectedDateObj.getMonth()]
+  } ${selectedDateObj.getFullYear()}`;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -111,48 +115,49 @@ export default function DateSlider({ selectedDate, onSelectDate }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-  },
-  monthYear: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#888",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  dateItem: {
-    width: ITEM_WIDTH,
-    alignItems: "center",
-    paddingVertical: 10,
-    borderRadius: 16,
-  },
-  dateItemSelected: {
-    backgroundColor: "#6C63FF",
-  },
-  dayName: {
-    fontSize: 11,
-    color: "#aaa",
-    marginBottom: 4,
-  },
-  dayNum: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#222",
-  },
-  textSelected: {
-    color: "#fff",
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#6C63FF",
-    marginTop: 4,
-  },
-  dotSelected: {
-    backgroundColor: "#fff",
-  },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    container: {
+      paddingVertical: 12,
+      backgroundColor: c.surface,
+    },
+    monthYear: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: c.textSecondary,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    dateItem: {
+      width: ITEM_WIDTH,
+      alignItems: "center",
+      paddingVertical: 10,
+      borderRadius: 16,
+    },
+    dateItemSelected: {
+      backgroundColor: c.primary,
+    },
+    dayName: {
+      fontSize: 11,
+      color: c.textMuted,
+      marginBottom: 4,
+    },
+    dayNum: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: c.text,
+    },
+    textSelected: {
+      color: c.onPrimary,
+    },
+    dot: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: c.primary,
+      marginTop: 4,
+    },
+    dotSelected: {
+      backgroundColor: c.onPrimary,
+    },
+  });

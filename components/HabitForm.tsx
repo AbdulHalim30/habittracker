@@ -11,6 +11,7 @@ import {
 import { TimeOfDay } from "../types";
 import { ICONS, COLORS, TIME_OPTIONS } from "../constants/data";
 import { parseReminder, formatReminder } from "../utils/notifications";
+import { Colors, useTheme, useThemedStyles } from "../constants/theme";
 
 type Props = {
   // Mode
@@ -57,6 +58,8 @@ export default function HabitForm({
   onSubmit,
   onCancel,
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { isDark, colors } = useTheme();
   async function handleToggleReminder(enabled: boolean) {
     const ok = await onToggleReminder(enabled);
     if (!ok) {
@@ -89,6 +92,8 @@ export default function HabitForm({
         <TextInput
           style={styles.input}
           placeholder="Nama habit..."
+          placeholderTextColor={colors.textMuted}
+          keyboardAppearance={isDark ? "dark" : "light"}
           value={name}
           onChangeText={onChangeName}
           autoFocus
@@ -194,7 +199,7 @@ export default function HabitForm({
           <Switch
             value={reminder !== null}
             onValueChange={handleToggleReminder}
-            trackColor={{ true: "#6C63FF" }}
+            trackColor={{ true: colors.primary }}
           />
         </View>
         {reminder !== null && (
@@ -242,99 +247,117 @@ export default function HabitForm({
   );
 }
 
-const styles = StyleSheet.create({
-  content: { padding: 24, paddingTop: 8 },
-  title: { fontSize: 18, fontWeight: "700", color: "#222", marginBottom: 16 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#eee",
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 15,
-    marginBottom: 16,
-  },
-  label: { fontSize: 13, fontWeight: "600", color: "#888", marginBottom: 8 },
-  iconRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
-  iconOption: {
-    padding: 8,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  iconOptionSelected: { borderColor: "#6C63FF", backgroundColor: "#6C63FF11" },
-  colorRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 24,
-  },
-  colorOption: { width: 32, height: 32, borderRadius: 16 },
-  colorOptionSelected: { borderWidth: 3, borderColor: "#222" },
-  timeRow: { flexDirection: "row", gap: 8, marginBottom: 24 },
-  timeOption: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#eee",
-    backgroundColor: "#fafafa",
-  },
-  timeOptionSelected: { borderColor: "#6C63FF", backgroundColor: "#6C63FF11" },
-  timeIcon: { fontSize: 18, marginBottom: 4 },
-  timeLabel: { fontSize: 11, fontWeight: "600", color: "#aaa" },
-  timeLabelSelected: { color: "#6C63FF" },
-  daysRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  dayOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "#eee",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  dayOptionSelected: { backgroundColor: "#6C63FF", borderColor: "#6C63FF" },
-  dayText: { fontSize: 11, fontWeight: "600", color: "#aaa" },
-  dayTextSelected: { color: "#fff" },
-  reminderHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  reminderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  reminderTime: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#222",
-    fontVariant: ["tabular-nums"],
-  },
-  stepBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#eee",
-    backgroundColor: "#fafafa",
-  },
-  stepText: { fontSize: 12, fontWeight: "600", color: "#6C63FF" },
-  submitBtn: {
-    backgroundColor: "#6C63FF",
-    padding: 16,
-    borderRadius: 14,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  submitBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  cancelBtn: { alignItems: "center", padding: 8, marginBottom: 16 },
-  cancelBtnText: { color: "#aaa", fontSize: 14 },
-});
+const makeStyles = (c: Colors) =>
+  StyleSheet.create({
+    content: { padding: 24, paddingTop: 8 },
+    title: { fontSize: 18, fontWeight: "700", color: c.text, marginBottom: 16 },
+    input: {
+      borderWidth: 1,
+      borderColor: c.borderStrong,
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 15,
+      color: c.text,
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: c.textSecondary,
+      marginBottom: 8,
+    },
+    iconRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginBottom: 16,
+    },
+    iconOption: {
+      padding: 8,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: "transparent",
+    },
+    iconOptionSelected: {
+      borderColor: c.primary,
+      backgroundColor: c.primarySoft,
+    },
+    colorRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+      marginBottom: 24,
+    },
+    colorOption: { width: 32, height: 32, borderRadius: 16 },
+    colorOptionSelected: { borderWidth: 3, borderColor: c.text },
+    timeRow: { flexDirection: "row", gap: 8, marginBottom: 24 },
+    timeOption: {
+      flex: 1,
+      alignItems: "center",
+      paddingVertical: 10,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: c.borderStrong,
+      backgroundColor: c.surfaceSubtle,
+    },
+    timeOptionSelected: {
+      borderColor: c.primary,
+      backgroundColor: c.primarySoft,
+    },
+    timeIcon: { fontSize: 18, marginBottom: 4 },
+    timeLabel: { fontSize: 11, fontWeight: "600", color: c.textMuted },
+    timeLabelSelected: { color: c.primary },
+    daysRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 24,
+    },
+    dayOption: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      borderWidth: 2,
+      borderColor: c.borderStrong,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    dayOptionSelected: { backgroundColor: c.primary, borderColor: c.primary },
+    dayText: { fontSize: 11, fontWeight: "600", color: c.textMuted },
+    dayTextSelected: { color: c.onPrimary },
+    reminderHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+    reminderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    reminderTime: {
+      fontSize: 22,
+      fontWeight: "700",
+      color: c.text,
+      fontVariant: ["tabular-nums"],
+    },
+    stepBtn: {
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: c.borderStrong,
+      backgroundColor: c.surfaceSubtle,
+    },
+    stepText: { fontSize: 12, fontWeight: "600", color: c.primary },
+    submitBtn: {
+      backgroundColor: c.primary,
+      padding: 16,
+      borderRadius: 14,
+      alignItems: "center",
+      marginBottom: 10,
+    },
+    submitBtnText: { color: c.onPrimary, fontWeight: "700", fontSize: 15 },
+    cancelBtn: { alignItems: "center", padding: 8, marginBottom: 16 },
+    cancelBtnText: { color: c.textMuted, fontSize: 14 },
+  });
