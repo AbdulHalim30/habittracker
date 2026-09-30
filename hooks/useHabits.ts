@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
+import { AppState } from "react-native";
 import { Habit, HabitLog, TimeOfDay } from "../types";
 import { parseDateKey } from "../utils/date";
+import { syncReminders } from "../utils/notifications";
 
 const HABITS_KEY = "habits";
 const LOGS_KEY = "habit_logs";
@@ -9,16 +11,34 @@ const LOGS_KEY = "habit_logs";
 export function useHabits(selectedDate: string) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [remindersBlocked, setRemindersBlocked] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Susun ulang pengingat tiap habit/log berubah dan tiap aplikasi kembali aktif
+  // (hari berganti, atau izin notifikasi diubah dari pengaturan)
+  useEffect(() => {
+    if (!loaded) return;
+    const sync = () =>
+      syncReminders(habits, logs)
+        .then((ok) => setRemindersBlocked(!ok))
+        .catch(() => {});
+    sync();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") sync();
+    });
+    return () => sub.remove();
+  }, [loaded, habits, logs]);
 
   async function loadData() {
     const habitsJson = await AsyncStorage.getItem(HABITS_KEY);
     const logsJson = await AsyncStorage.getItem(LOGS_KEY);
     if (habitsJson) setHabits(JSON.parse(habitsJson));
     if (logsJson) setLogs(JSON.parse(logsJson));
+    setLoaded(true);
   }
 
   // Filter habit berdasarkan hari dari selectedDate
@@ -42,7 +62,8 @@ export function useHabits(selectedDate: string) {
     icon: string,
     color: string,
     days: number[],
-    time: TimeOfDay
+    time: TimeOfDay,
+    reminder: string | null
   ) {
     const newHabit: Habit = {
       id: Date.now().toString(),
@@ -51,6 +72,7 @@ export function useHabits(selectedDate: string) {
       color,
       days,
       time,
+      reminder,
       createdAt: new Date().toISOString(),
     };
     const updated = [...habits, newHabit];
@@ -97,10 +119,11 @@ export function useHabits(selectedDate: string) {
     icon: string,
     color: string,
     days: number[],
-    time: TimeOfDay
+    time: TimeOfDay,
+    reminder: string | null
   ) {
     const updated = habits.map((h) =>
-      h.id === id ? { ...h, name, icon, color, days, time } : h
+      h.id === id ? { ...h, name, icon, color, days, time, reminder } : h
     );
     setHabits(updated);
     await AsyncStorage.setItem(HABITS_KEY, JSON.stringify(updated));
@@ -115,5 +138,6 @@ export function useHabits(selectedDate: string) {
     deleteHabit,
     toggleHabit,
     isCompleted,
+    remindersBlocked,
   };
 }

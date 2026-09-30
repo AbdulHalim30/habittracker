@@ -5,9 +5,12 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Switch,
+  Alert,
 } from "react-native";
 import { TimeOfDay } from "../types";
 import { ICONS, COLORS, TIME_OPTIONS } from "../constants/data";
+import { parseReminder, formatReminder } from "../utils/notifications";
 
 type Props = {
   // Mode
@@ -18,18 +21,23 @@ type Props = {
   color: string;
   days: number[];
   time: TimeOfDay;
+  reminder: string | null;
   // Setters
   onChangeName: (v: string) => void;
   onChangeIcon: (v: string) => void;
   onChangeColor: (v: string) => void;
   onToggleDay: (day: number) => void;
   onChangeTime: (v: TimeOfDay) => void;
+  onToggleReminder: (enabled: boolean) => Promise<boolean>;
+  onChangeReminder: (v: string) => void;
   // Actions
   onSubmit: () => void;
   onCancel: () => void;
 };
 
 const DAY_LABELS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+const MINUTE_STEP = 5;
 
 export default function HabitForm({
   mode,
@@ -38,14 +46,34 @@ export default function HabitForm({
   color,
   days,
   time,
+  reminder,
   onChangeName,
   onChangeIcon,
   onChangeColor,
   onToggleDay,
   onChangeTime,
+  onToggleReminder,
+  onChangeReminder,
   onSubmit,
   onCancel,
 }: Props) {
+  async function handleToggleReminder(enabled: boolean) {
+    const ok = await onToggleReminder(enabled);
+    if (!ok) {
+      Alert.alert(
+        "Izin notifikasi ditolak",
+        "Aktifkan notifikasi untuk aplikasi ini di pengaturan perangkat."
+      );
+    }
+  }
+
+  function shiftReminder(deltaMinutes: number) {
+    if (!reminder) return;
+    const { hour, minute } = parseReminder(reminder);
+    const total = (hour * 60 + minute + deltaMinutes + 24 * 60) % (24 * 60);
+    onChangeReminder(formatReminder(Math.floor(total / 60), total % 60));
+  }
+
   return (
     <ScrollView
       style={{ maxHeight: "90%" }}
@@ -160,6 +188,46 @@ export default function HabitForm({
           ))}
         </View>
 
+        {/* Pengingat */}
+        <View style={styles.reminderHeader}>
+          <Text style={[styles.label, { marginBottom: 0 }]}>Pengingat</Text>
+          <Switch
+            value={reminder !== null}
+            onValueChange={handleToggleReminder}
+            trackColor={{ true: "#6C63FF" }}
+          />
+        </View>
+        {reminder !== null && (
+          <View style={styles.reminderRow}>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => shiftReminder(-60)}
+            >
+              <Text style={styles.stepText}>-1j</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => shiftReminder(-MINUTE_STEP)}
+            >
+              <Text style={styles.stepText}>-{MINUTE_STEP}m</Text>
+            </TouchableOpacity>
+            <Text style={styles.reminderTime}>{reminder}</Text>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => shiftReminder(MINUTE_STEP)}
+            >
+              <Text style={styles.stepText}>+{MINUTE_STEP}m</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => shiftReminder(60)}
+            >
+              <Text style={styles.stepText}>+1j</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View style={{ height: 24 }} />
+
         {/* Buttons */}
         <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
           <Text style={styles.submitBtnText}>
@@ -233,6 +301,32 @@ const styles = StyleSheet.create({
   dayOptionSelected: { backgroundColor: "#6C63FF", borderColor: "#6C63FF" },
   dayText: { fontSize: 11, fontWeight: "600", color: "#aaa" },
   dayTextSelected: { color: "#fff" },
+  reminderHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  reminderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  reminderTime: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#222",
+    fontVariant: ["tabular-nums"],
+  },
+  stepBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#eee",
+    backgroundColor: "#fafafa",
+  },
+  stepText: { fontSize: 12, fontWeight: "600", color: "#6C63FF" },
   submitBtn: {
     backgroundColor: "#6C63FF",
     padding: 16,

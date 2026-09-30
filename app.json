@@ -17,6 +17,7 @@
       },
       "package": "com.habittracker.app"
     },
+    "plugins": ["expo-notifications"],
     "extra": {
       "eas": {
         "projectId": "d9dab934-d3e9-4cc2-8e27-1ca02ab65294"

@@ -7,6 +7,7 @@ export type Habit = {
   color: string;
   days: number[];
   time: TimeOfDay;
+  reminder?: string | null; // "HH:MM", null/undefined = tanpa pengingat
   createdAt: string;
 };
 

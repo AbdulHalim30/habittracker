@@ -6,6 +6,7 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  Linking,
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -53,6 +54,7 @@ export default function App() {
     deleteHabit,
     toggleHabit,
     isCompleted,
+    remindersBlocked,
   } = useHabits(selectedDate);
 
   const visibleHabits = habits.filter((h) =>
@@ -78,7 +80,8 @@ export default function App() {
       createForm.icon,
       createForm.color,
       createForm.days,
-      createForm.time
+      createForm.time,
+      createForm.reminder
     );
     createForm.reset();
     setCreateVisible(false);
@@ -99,7 +102,8 @@ export default function App() {
       editForm.icon,
       editForm.color,
       editForm.days,
-      editForm.time
+      editForm.time,
+      editForm.reminder
     );
     setEditVisible(false);
     setEditingHabit(null);
@@ -150,6 +154,17 @@ export default function App() {
         </View>
       </View>
 
+      {remindersBlocked && (
+        <TouchableOpacity
+          style={styles.permissionBanner}
+          onPress={() => Linking.openSettings()}
+        >
+          <Text style={styles.permissionText}>
+            🔕 Notifikasi nonaktif — ketuk untuk mengaktifkan
+          </Text>
+        </TouchableOpacity>
+      )}
+
       <DateSlider selectedDate={selectedDate} onSelectDate={setSelectedDate} />
       <TimeTabBar selected={activeTab} onSelect={setActiveTab} />
 
@@ -192,11 +207,14 @@ export default function App() {
           color={createForm.color}
           days={createForm.days}
           time={createForm.time}
+          reminder={createForm.reminder}
           onChangeName={createForm.setName}
           onChangeIcon={createForm.setIcon}
           onChangeColor={createForm.setColor}
           onToggleDay={createForm.toggleDay}
           onChangeTime={createForm.setTime}
+          onToggleReminder={createForm.toggleReminder}
+          onChangeReminder={createForm.setReminder}
           onSubmit={handleCreate}
           onCancel={() => setCreateVisible(false)}
         />
@@ -213,11 +231,14 @@ export default function App() {
           color={editForm.color}
           days={editForm.days}
           time={editForm.time}
+          reminder={editForm.reminder}
           onChangeName={editForm.setName}
           onChangeIcon={editForm.setIcon}
           onChangeColor={editForm.setColor}
           onToggleDay={editForm.toggleDay}
           onChangeTime={editForm.setTime}
+          onToggleReminder={editForm.toggleReminder}
+          onChangeReminder={editForm.setReminder}
           onSubmit={handleSaveEdit}
           onCancel={() => setEditVisible(false)}
         />
@@ -255,6 +276,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   createBtnText: { color: "#fff", fontWeight: "600", fontSize: 14 },
+  permissionBanner: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#FFF4E5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#FDE3BF",
+  },
+  permissionText: { fontSize: 13, color: "#B45309", fontWeight: "500" },
   progressContainer: {
     paddingHorizontal: 20,
     paddingVertical: 10,
