@@ -21,12 +21,12 @@ import StatsScreen from "./components/StatsScreen";
 import BottomSheetModal from "./components/BottomSheetModal";
 
 import { Habit, TimeOfDay } from "./types";
+import { todayKey } from "./utils/date";
 
-const TODAY = new Date().toISOString().split("T")[0];
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function App() {
-  const [selectedDate, setSelectedDate] = useState(TODAY);
+  const [selectedDate, setSelectedDate] = useState(todayKey);
   const [activeTab, setActiveTab] = useState<TimeOfDay>("all");
   const [showStats, setShowStats] = useState(false);
 
@@ -46,6 +46,7 @@ export default function App() {
 
   const {
     habits,
+    allHabits,
     logs,
     addHabit,
     updateHabit,
@@ -107,7 +108,7 @@ export default function App() {
   if (showStats) {
     return (
       <StatsScreen
-        habits={habits}
+        habits={allHabits}
         logs={logs}
         onClose={() => setShowStats(false)}
       />

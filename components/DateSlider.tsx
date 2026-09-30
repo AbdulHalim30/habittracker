@@ -7,17 +7,18 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
+import { parseDateKey, toDateKey, todayKey } from "../utils/date";
 
 const ITEM_WIDTH = 56;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 function getDates(center: string, range = 30) {
   const dates = [];
-  const centerDate = new Date(center);
+  const centerDate = parseDateKey(center);
   for (let i = -range; i <= range; i++) {
     const d = new Date(centerDate);
     d.setDate(d.getDate() + i);
-    dates.push(d.toISOString().split("T")[0]);
+    dates.push(toDateKey(d));
   }
   return dates;
 }
@@ -44,13 +45,12 @@ type Props = {
 };
 
 export default function DateSlider({ selectedDate, onSelectDate }: Props) {
-  // const today = new Date().toISOString().split("T")[0];
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = todayKey();
   const dates = getDates(today);
   const flatListRef = useRef<FlatList>(null);
   const selectedIndex = dates.indexOf(selectedDate);
 
-  const selectedDateObj = new Date(selectedDate);
+  const selectedDateObj = parseDateKey(selectedDate);
   const monthYear = `${MONTH_NAMES[selectedDateObj.getMonth()]} ${selectedDateObj.getFullYear()}`;
 
   useEffect(() => {
@@ -83,11 +83,11 @@ export default function DateSlider({ selectedDate, onSelectDate }: Props) {
           index,
         })}
         renderItem={({ item }) => {
-          const dateObj = new Date(item);
+          const dateObj = parseDateKey(item);
           const dayName = DAY_NAMES[dateObj.getDay()];
           const dayNum = dateObj.getDate();
           const isSelected = item === selectedDate;
-          const isToday = item === new Date().toISOString().split("T")[0];
+          const isToday = item === todayKey();
 
           return (
             <TouchableOpacity

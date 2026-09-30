@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Habit, HabitLog } from "../types";
+import { parseDateKey, toDateKey, todayKey } from "../utils/date";
 
 type Props = {
   habits: Habit[];
@@ -37,7 +38,7 @@ function getLast7Days(): string[] {
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split("T")[0]);
+    days.push(toDateKey(d));
   }
   return days;
 }
@@ -47,13 +48,13 @@ function getLast30Days(): string[] {
   for (let i = 29; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split("T")[0]);
+    days.push(toDateKey(d));
   }
   return days;
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = parseDateKey(dateStr);
   return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
@@ -67,8 +68,10 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
     );
   }
 
+  // Hari sebelum habit dibuat tidak dihitung aktif
   function isActiveDay(habit: Habit, date: string) {
-    return habit.days.includes(new Date(date).getDay());
+    if (date < toDateKey(new Date(habit.createdAt))) return false;
+    return habit.days.includes(parseDateKey(date).getDay());
   }
 
   // Hitung completion rate per habit
@@ -85,14 +88,16 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
   function getCurrentStreak(habit: Habit): number {
     let streak = 0;
     const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
+    const todayStr = toDateKey(today);
     const todayDone = isCompleted(habit.id, todayStr);
 
     let checkDate = new Date(today);
     if (!todayDone) checkDate.setDate(checkDate.getDate() - 1);
 
+    const createdStr = toDateKey(new Date(habit.createdAt));
     while (streak <= 365) {
-      const dateStr = checkDate.toISOString().split("T")[0];
+      const dateStr = toDateKey(checkDate);
+      if (dateStr < createdStr) break;
       if (isActiveDay(habit, dateStr)) {
         if (isCompleted(habit.id, dateStr)) {
           streak++;
@@ -174,7 +179,7 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
                 const total = getTotalActiveForDate(date);
                 const barHeight =
                   total === 0 ? 4 : Math.max((completed / maxBar) * 120, 4);
-                const isToday = date === new Date().toISOString().split("T")[0];
+                const isToday = date === todayKey();
 
                 return (
                   <View key={date} style={styles.barWrapper}>
@@ -199,8 +204,8 @@ export default function StatsScreen({ habits, logs, onClose }: Props) {
                       style={[styles.barLabel, isToday && styles.barLabelToday]}
                     >
                       {period === "7"
-                        ? DAY_NAMES[new Date(date).getDay()]
-                        : new Date(date).getDate()}
+                        ? DAY_NAMES[parseDateKey(date).getDay()]
+                        : parseDateKey(date).getDate()}
                     </Text>
                   </View>
                 );

@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
 import { Habit, HabitLog, TimeOfDay } from "../types";
+import { parseDateKey } from "../utils/date";
 
 const HABITS_KEY = "habits";
 const LOGS_KEY = "habit_logs";
@@ -21,7 +22,7 @@ export function useHabits(selectedDate: string) {
   }
 
   // Filter habit berdasarkan hari dari selectedDate
-  const dayOfWeek = new Date(selectedDate).getDay(); // 0-6
+  const dayOfWeek = parseDateKey(selectedDate).getDay(); // 0-6
   const filteredHabits = habits
     .filter((h) => h.days.includes(dayOfWeek))
     .sort((a, b) => {
@@ -59,8 +60,11 @@ export function useHabits(selectedDate: string) {
 
   async function deleteHabit(habitId: string) {
     const updated = habits.filter((h) => h.id !== habitId);
+    const updatedLogs = logs.filter((l) => l.habitId !== habitId);
     setHabits(updated);
+    setLogs(updatedLogs);
     await AsyncStorage.setItem(HABITS_KEY, JSON.stringify(updated));
+    await AsyncStorage.setItem(LOGS_KEY, JSON.stringify(updatedLogs));
   }
 
   async function toggleHabit(habitId: string) {
@@ -104,6 +108,7 @@ export function useHabits(selectedDate: string) {
 
   return {
     habits: filteredHabits,
+    allHabits: habits,
     logs,
     addHabit,
     updateHabit,
